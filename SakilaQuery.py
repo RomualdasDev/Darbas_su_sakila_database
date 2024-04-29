@@ -1,12 +1,3 @@
-#atvaizduoti visus customerius
-# atvaizduoti visus customerius ir stulpelį kuriame būtų atvaizduota kiek pinigų kiekvienas jų yra išleidęs nuomai, ir kiek filmų nuomavesis
-# atvaizduoti aktorius ir keliuose filmuose jie yra filmavesi
-# atvaizduoti visus filmus ir kiek aktorių juose vaidino
-# su pitono pagalba: nustatyti kuris nuomos punktas:
-#--turi daugiau customerių
-#--išnuomavo daugiau(ir kiek kiekvienas) filmų
-#--kiek sugeneravo pajamų
-
 print("1.atvaizduoti visus customerius")
 
 import mysql.connector
@@ -80,7 +71,7 @@ try:
     results = cursor.fetchall()
     for row in results:
         customer_id, first_name, last_name, isleistaSuma, IsnuomotiFilmai = row
-        print(f"Customer ID: {customer_id}, Vardas: {first_name} {last_name}, IsleistaSuma: ${isleistaSuma}, Total Films Rented: {IsnuomotiFilmai}")
+        print(f"Customer ID: {customer_id}, Vardas: {first_name} {last_name}, Isleista Suma: {isleistaSuma}, Isnuomotu filmu kiekis: {IsnuomotiFilmai}")
 
 except mysql.connector.Error as err:
     print(f"Connection error: {err}")
@@ -195,157 +186,37 @@ finally:
         connection.close()
         print("Connection closed.")
 
-print("5.nustatyti kuris nuomos punktas: turi daugiau customerių")
+print("5.-------------------------------------------------------------------------------------------------------------")
 
-import mysql.connector
+from function import (
+    daugiausiaiCustomeriu,
+    daugiausiaiIsnuomotuFilmu,
+    DidziausiaApyvarta
+)
 
-hostname = "localhost"
-username = "root"
-password = "Belenkas@23"
-database = "sakila"
-
-connection = None
-cursor = None
-
-
-try:
-    connection = mysql.connector.connect(host=hostname, port=3317, user=username, password=password, database=database)
-    print("Connection successful!")
-    cursor = connection.cursor()
-    query ="""
-        SELECT 
-            store.store_id,
-            COUNT(cust.customer_id) AS nuomininkai
-        FROM 
-            store store
-        JOIN 
-            customer cust ON store.store_id = cust.store_id
-        GROUP BY 
-            store.store_id
-        ORDER BY 
-            nuomininkai DESC
-    """
-    cursor.execute(query)
-    result = cursor.fetchall()
-    if result:
-        store_id, nuomininkai = result
-        print(f"Store ID ir kiek turi klientu: {store_id}, Store ID ir kiek turi klientu: {nuomininkai}")
+def main():
+    print("5.1. nustatyti kuris nuomos punktas: turi daugiau customerių")
+    store_id, customer_count = daugiausiaiCustomeriu()
+    if store_id is not None and customer_count is not None:
+        print(f"Parduotuve turinti daugiausiai klientu: {store_id}, Klientu skaicius: {customer_count}")
     else:
         print()
 
-except mysql.connector.Error as err:
-    print(f"Connection error: {err}")
-
-finally:
-    if cursor:
-        cursor.close()
-    if connection:
-        connection.close()
-        print("Connection closed.")
-
-print("6.nustatyti kuris nuomos punktas: išnuomavo daugiau(ir kiek kiekvienas) filmų")
-
-import mysql.connector
-
-hostname = "localhost"
-username = "root"
-password = "Belenkas@23"
-database = "sakila"
-
-connection = None
-cursor = None
-
-
-try:
-    connection = mysql.connector.connect(host=hostname, port=3317, user=username, password=password, database=database)
-    print("Connection successful!")
-    cursor = connection.cursor()
-    query = """
-        SELECT 
-            store.store_id,
-            COUNT(invent.inventory_id) AS filmuSkaicius
-        FROM 
-            store store
-        JOIN 
-            inventory invent ON store.store_id = invent.store_id
-        GROUP BY 
-            store.store_id
-        ORDER BY 
-            filmuSkaicius DESC
-    """
-
-    cursor.execute(query)
-    result = cursor.fetchall()
-    if result:
-        store_id, filmuSkaicius = result
-        print(f"Store ID ir kiek filmu isnuomota: {store_id}, Store ID ir kiek filmu isnuomota: {filmuSkaicius}")
+    print("5.2. nustatyti kuris nuomos punktas: išnuomavo daugiau(ir kiek kiekvienas) filmų")
+    store_id, film_count = daugiausiaiIsnuomotuFilmu()
+    if store_id is not None and film_count is not None:
+        print(f"Parduotuve isnuomojanti daugiausiai filmu: {store_id}, Filmu skaicius: {film_count}")
     else:
         print()
 
-
-except mysql.connector.Error as err:
-    print(f"Connection error: {err}")
-
-finally:
-    if cursor:
-        cursor.close()
-    if connection:
-        connection.close()
-        print("Connection closed.")
-
-
-print("7.nustatyti kuris nuomos punktas:kiek sugeneravo pajamų: ")
-
-import mysql.connector
-
-hostname = "localhost"
-username = "root"
-password = "Belenkas@23"
-database = "sakila"
-
-connection = None
-cursor = None
-
-
-try:
-    connection = mysql.connector.connect(host=hostname, port=3317, user=username, password=password, database=database)
-    print("Connection successful!")
-    cursor = connection.cursor()
-    query = """
-            SELECT 
-                store.store_id,
-                SUM(payment.amount) AS pelnas
-            FROM 
-                store
-            JOIN 
-                staff ON store.manager_staff_id = staff.staff_id
-            JOIN 
-                payment ON staff.staff_id = payment.staff_id
-            GROUP BY 
-                store.store_id
-            ORDER BY 
-                pelnas DESC
-            LIMIT 2
-        """
-
-    cursor.execute(query)
-    results = cursor.fetchall()
-
-    if results:
-        for result in results:
-            store_id, pelnas = result
-            pelniukas = float(pelnas)
-            print(f"Store ID: {store_id}, Pelnas: {pelniukas}")
+    print("5.3.nustatyti kuris nuomos punktas: kiek sugeneravo pajamų")
+    top_stores = DidziausiaApyvarta(limit=2)
+    if top_stores:
+        for store_id, revenue in top_stores:
+            print(f"Store ID: {store_id}, Apyvarta: {revenue}")
     else:
         print()
 
-except mysql.connector.Error as err:
-    print(f"Connection error: {err}")
-
-finally:
-    if cursor:
-        cursor.close()
-    if connection:
-        connection.close()
-        print("Connection closed.")
+if __name__ == "__main__":
+    main()
 

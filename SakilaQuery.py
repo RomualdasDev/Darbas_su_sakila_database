@@ -44,7 +44,6 @@ database = "sakila"
 connection = None
 cursor = None
 
-
 try:
     connection = mysql.connector.connect(host=hostname, port=3317, user=username, password=password, database=database)
     print("Connection successful!")
@@ -83,8 +82,6 @@ finally:
         connection.close()
         print("Connection closed.")
 
-
-
 print("3.atvaizduoti aktorius ir keliuose filmuose jie yra filmavesi")
 
 import mysql.connector
@@ -96,7 +93,6 @@ database = "sakila"
 
 connection = None
 cursor = None
-
 
 try:
     connection = mysql.connector.connect(host=hostname, port=3317, user=username, password=password, database=database)
@@ -138,7 +134,6 @@ finally:
         connection.close()
         print("Connection closed.")
 
-
 print("4.atvaizduoti visus filmus ir kiek aktorių juose vaidino")
 
 import mysql.connector
@@ -150,7 +145,6 @@ database = "sakila"
 
 connection = None
 cursor = None
-
 
 try:
     connection = mysql.connector.connect(host=hostname, port=3317, user=username, password=password, database=database)
@@ -219,4 +213,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
